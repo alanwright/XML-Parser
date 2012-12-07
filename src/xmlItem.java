@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 
 public class xmlItem {
 
@@ -7,7 +9,17 @@ public class xmlItem {
 	private String publisher;
 	private String pubDate;
 	private String thumbURL;
-	private String description;
+	private String shortDescription;
+	private String longDescription;
+	private String printPubDateNum;
+	private String digitalPubDateNum;
+	private boolean isDigital;
+	private int pageCount;
+	private ArrayList<String> coverArtists;
+	private ArrayList<String> authors;
+	private ArrayList<String> artists;
+	private ArrayList<String> inkers;
+	private ArrayList<String> colors;
 
 	public String getTitle() {
 		return title;
@@ -28,7 +40,7 @@ public class xmlItem {
 	@Override
 	public String toString() {
 		return String.format("Title: %s\nDescription: %s\nPublisher: %s\n" +
-				"Publish Date: %s\nThumbnail url: %s\nLink: %s\n\n", title, description, publisher, pubDate, thumbURL, link);
+				"Publish Date: %s\nThumbnail url: %s\nLink: %s\n\n", title, shortDescription, publisher, pubDate, thumbURL, link);
 	}
 
 	public void setPublisher(String publisher) {
@@ -55,11 +67,91 @@ public class xmlItem {
 		return thumbURL;
 	}
 	
-	public void setDescription(String description) {
-		this.description = description;
+	public void setShortDescription(String shortDescription) {
+		this.shortDescription = shortDescription;
 	}
 	
-	public String getDescription() {
-		return description;
+	public String getShortDescription() {
+		return shortDescription;
+	}
+	
+	public void setLongDescription(String longDescription) {
+		this.longDescription = shortDescription;
+	}
+	
+	public String getLongDescription() {
+		return longDescription;
+	}
+	
+	public void setCoverArtists(ArrayList<String> coverArtists) {
+		this.coverArtists = coverArtists;
+	}
+	
+	public ArrayList<String> getCoverArtists() {
+		return coverArtists;
+	}
+	
+	public void setAuthors(ArrayList<String> authors) {
+		this.authors = authors;
+	}
+	
+	public ArrayList<String> getAuthors() {
+		return authors;
+	}
+	
+	public void setArtists(ArrayList<String> artists) {
+		this.artists = artists;
+	}
+	
+	public ArrayList<String> getArtists() {
+		return artists;
+	}
+	
+	public void setInkers(ArrayList<String> inkers) {
+		this.inkers = inkers;
+	}
+	
+	public ArrayList<String> getInkers() {
+		return inkers;
+	}
+	
+	public void setColors(ArrayList<String> colors) {
+		this.colors = colors;
+	}
+	
+	public ArrayList<String> getColors() {
+		return colors;
+	}
+	
+	public void setPrintPubDateNum(String printDate) {
+		this.printPubDateNum = printDate;
+	}
+	
+	public String getPrintPubDateNum() {
+		return printPubDateNum;
+	}
+	
+	public void setDigitalPubDateNum(String digitalDate) {
+		this.digitalPubDateNum = digitalDate;
+	}
+	
+	public String getDigitalPubDateNum() {
+		return digitalPubDateNum;
+	}
+	
+	public void setDigital(boolean isDigital) {
+		this.isDigital = isDigital;
+	}
+	
+	public boolean isDigital() {
+		return isDigital;
+	}
+	
+	public void setPageCount(int pageCount) {
+		this.pageCount = pageCount;
+	}
+	
+	public int getPageCount() {
+		return pageCount;
 	}
 }

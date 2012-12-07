@@ -6,46 +6,48 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 
-public class xmlParseHandler extends DefaultHandler {
+public class htmlParseHandler extends DefaultHandler {
 
 	//List of parsed items. 
-	private List<xmlItem> xmlItems;
+	private xmlItem item;
 	
 	// Used to reference the current item while parsing
 	private xmlItem currentItem;
 	
 	//Indicates what you are currently parsing
-	private boolean parsingTitle;
-	private boolean parsingLink;
-	private boolean parsingPublisher;
-	private boolean parsingPubDate;
-	private boolean parsingShortDescription;
-	private boolean parsingContentEncoded;
+	private boolean parsingDiv;
+	private boolean parsingCoverArtists;
+	private boolean parsingInkers;
+	private boolean parsingAuthors;
+	private boolean parsingPubDateNum;
+	private boolean parsingArtists;
+	private boolean parsingLongDescription;
 	
 	//Constants used to parse thumbnail url
 	private String EXAMPLE_THUMB_URL = "http://iphone.comixology.com/covers/thumbnails/OCT120587_1_t.jpg";
 	private String GENERIC_THUMB_URL = "http://iphone.comixology.com/covers/thumbnails";
 	
-	public xmlParseHandler() {
-		xmlItems = new ArrayList<xmlItem>();
+	public htmlParseHandler(xmlItem item) {
+		this.item = item;
 	}
 	
-	public List<xmlItem> getItems() {
-		return xmlItems;
+	public xmlItem getItems() {
+		return item;
 	}
 	
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		if ("item".equals(qName)) {
-			currentItem = new xmlItem();
-		} else if ("title".equals(qName)) {
+		if ("div".equals(qName) && attributes.getValue("class").equals("content_body")) {
+			parsingDiv = true;
+			System.out.println("hit");
+		} /*else if ("title".equals(qName)) {
 			parsingTitle = true;
 		} else if ("feedburner:origLink".equals(qName)) {
 			parsingLink = true;
 		} else if("category".equals(qName)){
 			parsingPublisher = true;
 		} else if("description".equals(qName)){
-			parsingShortDescription = true;
+			parsingDescription = true;
 		} else if("pubDate".equals(qName)){
 			parsingPubDate = true;
 		} else if("content:encoded".equals(qName)){
@@ -55,12 +57,12 @@ public class xmlParseHandler extends DefaultHandler {
 			if(currentItem!=null){
 				currentItem.setthumbURL(attributes.getValue("src"));
 			}
-		}
+		}*/
 	}
 	
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if ("item".equals(qName)) {
+		/*if ("item".equals(qName)) {
 			xmlItems.add(currentItem);
 			currentItem = null;
 		} else if ("title".equals(qName)) {
@@ -70,17 +72,17 @@ public class xmlParseHandler extends DefaultHandler {
 		} else if("category".equals(qName)){
 			parsingPublisher = false;
 		} else if("description".equals(qName)){
-			parsingShortDescription = false;
+			parsingDescription = false;
 		} else if("pubDate".equals(qName)){
 			parsingPubDate = false;
 		} else if("content:encoded".equals(qName)){
 			parsingContentEncoded = false;
-		}
+		}*/
 	}
 	
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
-		if (parsingTitle) {
+		/*if (parsingTitle) {
 			if (currentItem != null)
 				currentItem.setTitle(new String(ch, start, length));
 		} else if (parsingLink) {
@@ -101,7 +103,7 @@ public class xmlParseHandler extends DefaultHandler {
 					currentItem.setPubDate(new String(ch, start, length));
 				}
 			}
-		} else if(parsingShortDescription){
+		} else if(parsingDescription){
 			if(currentItem != null){
 				currentItem.setShortDescription(new String(ch, start, length));
 			}
@@ -122,6 +124,6 @@ public class xmlParseHandler extends DefaultHandler {
 					parsingContentEncoded = false;
 				}
 			}
-		}
+		}*/
 	}
 }
