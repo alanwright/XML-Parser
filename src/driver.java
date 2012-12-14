@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,28 +41,39 @@ public class driver{
 			//HTML Parsing
 			int count = 0;
 			for(xmlItem comic : xmlItems){
-				Document doc = Jsoup.connect(xmlItems.get(count).getLink()).get();
-				
-				totalTime += parseImage(comic, doc);
-				totalTime += parseLongDescription(comic, doc);
-				totalTime += parseCredits(comic, doc);
+				try{
+					Document doc = Jsoup.connect(xmlItems.get(count).getLink()).get();
+					
+					totalTime += parseImage(comic, doc);
+					totalTime += parseLongDescription(comic, doc);
+					totalTime += parseCredits(comic, doc);
+					
+					//Backspace last print
+					if(count > 99)
+						System.out.print("\b\b\b");
+					else if(count > 9)
+						System.out.print("\b\b");
+					else if(count > 0)
+						System.out.print("\b");
+				} catch(SocketTimeoutException e){
+					System.out.println("timeout: " + count);
+				}
 
 				count++;
-				
-				if(count > 10)
-					break;
+				System.out.print(count);
 			}
-
-			System.out.println("HTML parsing of " + count + " comics complete in " + totalTime + " milliseconds.");
 			
-		} catch(IOException e){
-			System.out.println("Could not open output file...");
+			totalTime/=1000;
+			System.out.println("HTML parsing of " + count + " comics complete in " + totalTime + " seconds.");
+			
 		} catch(Exception e){
+			e.printStackTrace();
 			System.out.println("Could not parse XML File");
+			return;
 		}
-		try{
-			if(PRINT_OUT){
-				
+		
+		if(PRINT_OUT){
+			try{
 				System.out.print("Writing output to file...");
 				//Open Output
 				FileOutputStream fstream = new FileOutputStream("XML_Parse_out.txt");
@@ -73,17 +85,14 @@ public class driver{
 					out.println(x.toString());
 					
 					count++;
-					
-					if(count > 10)
-						break;
 				}
 				
 				//Finish
 				out.close();
 				System.out.println("Complete!");
+			} catch(FileNotFoundException e){
+				System.out.println("File not found!");
 			}
-		} catch(FileNotFoundException e){
-			System.out.println("File not found!");
 		}
 		
 	}
@@ -260,9 +269,11 @@ public static long parseCredits(xmlItem comic, Document doc){
 			
 			if(temp.size() > 0){
 				if(pages && count == 0){
-//					int pageCount = Integer.parseInt(temp.text());
+					//Format: "XXX Pages"
+					int index = temp.text().indexOf("Pages");
+					int pageCount = Integer.parseInt(temp.text().substring(0, index-1));
 //					System.out.println("Pages: " + pageCount);
-//					comic.setPageCount(pageCount);
+					comic.setPageCount(pageCount);
 					count++;
 					pages = false;
 				}
@@ -274,9 +285,9 @@ public static long parseCredits(xmlItem comic, Document doc){
 					printDate = false;
 				}
 				else if(digitalDate && count <= 2){
-					String printDateNum = temp.text();
+					String digitalDateNum = temp.text();
 					//System.out.println("Digital Date: " + printDateNum);
-					comic.setPrintPubDateNum(printDateNum);
+					comic.setDigitalPubDateNum(digitalDateNum);
 					count++;
 					digitalDate = false;
 					comic.setDigital(true); //Comic is digital

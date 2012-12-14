@@ -6,6 +6,7 @@ public class xmlItem {
 
 	//Variables for xmlItem
 	private String title;
+	private String genericTitle;
 	private String link;
 	private String publisher;
 	private String pubDate;
@@ -16,18 +17,81 @@ public class xmlItem {
 	private String digitalPubDateNum;
 	private boolean isDigital;
 	private int pageCount;
+	private int issueNum;
+	private String issueStr;
 	private ArrayList<String> coverArtists;
 	private ArrayList<String> authors;
 	private ArrayList<String> artists;
 	private ArrayList<String> inkers;
 	private ArrayList<String> colors;
+	
+	public xmlItem(){
+		//Initialize all instance variables. 
+		title = "";
+		genericTitle = "";
+		link = "";
+		publisher = "";
+		pubDate = "";
+		thumbURL = "";
+		shortDescription = "";
+		longDescription = "";
+		printPubDateNum = "";
+		digitalPubDateNum = "";
+		isDigital = false;
+		pageCount = -1;
+		issueNum = -1;
+		issueStr = "";
+		coverArtists = new ArrayList<String>();
+		authors = new ArrayList<String>();
+		artists = new ArrayList<String>();
+		inkers = new ArrayList<String>();
+		colors = new ArrayList<String>();
+	}
 
 	public String getTitle() {
 		return title;
 	}
 
 	public void setTitle(String title) {
-		this.title = title;
+		//Issue number will be after a # sign
+		int issueIndex = title.indexOf('#');
+		
+		//If there is an issue number...
+		if(issueIndex >=0){
+			
+			//try to parse the issue number regularly #XXX
+			try{
+				this.issueNum = Integer.parseInt(title.substring(issueIndex+1));
+				this.issueStr = title.substring(issueIndex+1);
+				
+				//Catch the exception if it is formatted differently
+			} catch(NumberFormatException e){
+				
+				//Possible formats: #XX.X or # X (out of X)
+				int periodIndex = title.lastIndexOf('.');
+				int parenIndex = title.lastIndexOf('(');
+				
+				//If there is a period after the #, parse accordingly
+				if(periodIndex > issueIndex){
+					this.issueStr = title.substring(issueIndex+1);
+					this.issueNum = Integer.parseInt(title.substring(issueIndex+ 1, periodIndex));
+				}
+				
+				//If there is a left paren ( after the #, parse accordingly
+				else if(parenIndex > issueIndex){
+					this.issueNum = Integer.parseInt(title.substring(issueIndex+ 1, parenIndex-1));
+					this.issueStr = title.substring(issueIndex+ 1, parenIndex);
+				}
+				
+			}
+			//Parse the title
+			this.title = title; 
+			this.genericTitle = title.substring(0, issueIndex);
+		}
+		else{
+			this.title = title;
+			this.genericTitle = title;
+		}
 	}
 
 	public String getLink() {
@@ -40,33 +104,11 @@ public class xmlItem {
 	
 	@Override
 	public String toString() {
-		//Check cover artists
-		String coverArt = "";
-		if(coverArtists != null){
-			for (String s : coverArtists)
-			{
-			    coverArt += s + "\t";
-			}
-		}
-		else{
-			coverArt = "none";
-		}
 		
-		//Check authors
-		String auth = "";
-		if(authors != null){
-			for (String s : authors)
-			{
-			    auth += s + "\t";
-			}
-		}
-		else{
-			auth = "none";
-		}
-		
-		return String.format("Title: %s\nDescription: %s\nPublisher: %s\n" +
-				"Publish Date: %s\nThumbnail url: %s\nLink: %s\n" +
-				"Cover Artists: %s\nAuthors: %s\n", title, shortDescription, publisher, pubDate, thumbURL, link, coverArt, auth);
+		return String.format("Title: %s\nGeneric Title: %s\nIssue #: %d\nIssue Str: %s\nShort Description: %s\nPublisher: %s\n" +
+				"Publish Date: %s\nPrint Date: %s\nDigital Date: %s\nThumbnail url: %s\n" +
+				"Link: %s\nLong Description: %s\nCover Artists: %s\nAuthors: %s\nInkers: %s\nColors: %s\n" +
+				"Page Count: %d\nDigital: %B\n", title, genericTitle, issueNum, issueStr, shortDescription, publisher, pubDate, printPubDateNum, digitalPubDateNum, thumbURL, link, longDescription, coverArtists, authors, inkers, colors, pageCount, isDigital);
 	}
 
 	public void setPublisher(String publisher) {
@@ -102,7 +144,7 @@ public class xmlItem {
 	}
 	
 	public void setLongDescription(String longDescription) {
-		this.longDescription = shortDescription;
+		this.longDescription = longDescription;
 	}
 	
 	public String getLongDescription() {
@@ -150,7 +192,10 @@ public class xmlItem {
 	}
 	
 	public void setPrintPubDateNum(String printDate) {
-		this.printPubDateNum = printDate;
+		//Input format: MM/DD/YYYY
+		//Output format: YYYY-MM-DD
+		String output = printDate.substring(6) + "-" + printDate.substring(0, 2) + "-" + printDate.substring(3, 5);
+		this.printPubDateNum = output;
 	}
 	
 	public String getPrintPubDateNum() {
@@ -158,7 +203,10 @@ public class xmlItem {
 	}
 	
 	public void setDigitalPubDateNum(String digitalDate) {
-		this.digitalPubDateNum = digitalDate;
+		//Input format: MM/DD/YYYY
+		//Output format: YYYY-MM-DD
+		String output = digitalDate.substring(6) + "-" + digitalDate.substring(0, 2) + "-" + digitalDate.substring(3, 5);
+		this.digitalPubDateNum = output;
 	}
 	
 	public String getDigitalPubDateNum() {
