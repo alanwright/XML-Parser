@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class xmlItem {
@@ -39,8 +40,33 @@ public class xmlItem {
 	
 	@Override
 	public String toString() {
+		//Check cover artists
+		String coverArt = "";
+		if(coverArtists != null){
+			for (String s : coverArtists)
+			{
+			    coverArt += s + "\t";
+			}
+		}
+		else{
+			coverArt = "none";
+		}
+		
+		//Check authors
+		String auth = "";
+		if(authors != null){
+			for (String s : authors)
+			{
+			    auth += s + "\t";
+			}
+		}
+		else{
+			auth = "none";
+		}
+		
 		return String.format("Title: %s\nDescription: %s\nPublisher: %s\n" +
-				"Publish Date: %s\nThumbnail url: %s\nLink: %s\n\n", title, shortDescription, publisher, pubDate, thumbURL, link);
+				"Publish Date: %s\nThumbnail url: %s\nLink: %s\n" +
+				"Cover Artists: %s\nAuthors: %s\n", title, shortDescription, publisher, pubDate, thumbURL, link, coverArt, auth);
 	}
 
 	public void setPublisher(String publisher) {

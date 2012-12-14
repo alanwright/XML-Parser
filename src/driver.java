@@ -1,5 +1,6 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -19,7 +20,9 @@ import org.jsoup.select.Elements;
 public class driver{
 	
 	private static String XML_URL = "http://feeds.feedburner.com/ComixologyDigitalComics?fmt=xml";
-	private static boolean PRINT_OUT = false;
+	private static boolean PRINT_OUT = true;
+	private static long totalTime = 0;
+	private static List<xmlItem> xmlItems;
 	
 	//Testing...
 	public static void main(String[] args){
@@ -28,43 +31,61 @@ public class driver{
 			//Parse
 			xmlParser xmlReader = new xmlParser(XML_URL);
 			long initTime = System.currentTimeMillis();
-			List<xmlItem> xmlItems = xmlReader.getItems();
+			xmlItems = xmlReader.getItems();
 			long finalTime = System.currentTimeMillis();
 			
-			if(PRINT_OUT){
-
-				//Open Output
-				FileOutputStream fstream = new FileOutputStream("XML_Parse_out.txt");
-				PrintStream out = new PrintStream(fstream);
-				
-				//Print items
-				for(xmlItem x : xmlItems){
-					out.println(x.toString());
-				}
-				
-				//Finish
-				out.close();
-			}
-			System.out.println("Execution Complete. Parsing of " + xmlItems.size() + " comics took " +
+			System.out.println("XML parsing of " + xmlItems.size() + " comics complete in " +
 					(finalTime - initTime) + " milliseconds.");
 			
 			//HTML Parsing
-			long totalTime = 0;
+			int count = 0;
 			for(xmlItem comic : xmlItems){
-				Document doc = Jsoup.connect(xmlItems.get(23).getLink()).get();
+				Document doc = Jsoup.connect(xmlItems.get(count).getLink()).get();
 				
-				//totalTime+=parseImage(comic, doc);
-				//totalTime+=parseLongDescription(comic, doc);
+				totalTime += parseImage(comic, doc);
+				totalTime += parseLongDescription(comic, doc);
 				totalTime += parseCredits(comic, doc);
+
+				count++;
 				
-				break;
+				if(count > 10)
+					break;
 			}
+
+			System.out.println("HTML parsing of " + count + " comics complete in " + totalTime + " milliseconds.");
 			
 		} catch(IOException e){
 			System.out.println("Could not open output file...");
 		} catch(Exception e){
 			System.out.println("Could not parse XML File");
 		}
+		try{
+			if(PRINT_OUT){
+				
+				System.out.print("Writing output to file...");
+				//Open Output
+				FileOutputStream fstream = new FileOutputStream("XML_Parse_out.txt");
+				PrintStream out = new PrintStream(fstream);
+				
+				//Print items
+				int count = 0;
+				for(xmlItem x : xmlItems){
+					out.println(x.toString());
+					
+					count++;
+					
+					if(count > 10)
+						break;
+				}
+				
+				//Finish
+				out.close();
+				System.out.println("Complete!");
+			}
+		} catch(FileNotFoundException e){
+			System.out.println("File not found!");
+		}
+		
 	}
 	
 public static long parseImage(xmlItem comic, Document doc){
@@ -77,7 +98,7 @@ public static long parseImage(xmlItem comic, Document doc){
 		for(Element x: pics){
 			Elements temp =  x.getElementsByAttributeValue("id", "max_img1");
 			if(temp.size() != 0){
-				System.out.println("! " +temp.attr("src"));
+				//System.out.println("! " +temp.attr("src"));
 				String url = temp.attr("src");
 				try{
 					BufferedImage image = ImageIO.read(new URL(url));
@@ -174,7 +195,7 @@ public static long parseCredits(xmlItem comic, Document doc){
 		}
 		
 		//Debug
-		System.out.println(cover + " " + author + " " + artist + " " + inker + " " + colors);
+		//System.out.println(cover + " " + author + " " + artist + " " + inker + " " + colors);
 		
 		//Now we know what lists there are
 		//Parse in order of: cover, author, artist, inker, colors
@@ -189,35 +210,35 @@ public static long parseCredits(xmlItem comic, Document doc){
 			if(temp.size() > 0){
 				if(cover && count == 0){
 					String[] names = x.getElementsByTag("a").html().split("\\\n");
-					System.out.println("Cover: " + Arrays.toString(names));
+					//System.out.println("Cover: " + Arrays.toString(names));
 					comic.setCoverArtists(new ArrayList<String>(Arrays.asList(names)));
 					count++;
 					cover = false;
 				}
 				else if( author && count <= 1){
 					String[] names = x.getElementsByTag("a").html().split("\\\n");
-					System.out.println("Author: " + Arrays.toString(names));
+					//System.out.println("Author: " + Arrays.toString(names));
 					comic.setAuthors(new ArrayList<String>(Arrays.asList(names)));
 					count++;
 					author = false;
 				}
 				else if(artist && count <= 2){
 					String[] names = x.getElementsByTag("a").html().split("\\\n");
-					System.out.println("Artist: " + Arrays.toString(names));
+					//System.out.println("Artist: " + Arrays.toString(names));
 					comic.setArtists(new ArrayList<String>(Arrays.asList(names)));
 					count++;
 					artist = false;
 				}
 				else if(inker && count <=3){
 					String[] names = x.getElementsByTag("a").html().split("\\\n");
-					System.out.println("Inker: " + Arrays.toString(names));
+					//System.out.println("Inker: " + Arrays.toString(names));
 					comic.setInkers(new ArrayList<String>(Arrays.asList(names)));
 					count++;
 					inker = false;
 				}
 				else if(colors && count <= 4){
 					String[] names = x.getElementsByTag("a").html().split("\\\n");
-					System.out.println("Colors: " + Arrays.toString(names));
+					//System.out.println("Colors: " + Arrays.toString(names));
 					comic.setColors(new ArrayList<String>(Arrays.asList(names)));
 					count++;
 					colors = false;
@@ -247,14 +268,14 @@ public static long parseCredits(xmlItem comic, Document doc){
 				}
 				else if(printDate && count <= 1){
 					String printDateNum = temp.text();
-					System.out.println("Print Date: " + printDateNum);
+					//System.out.println("Print Date: " + printDateNum);
 					comic.setPrintPubDateNum(printDateNum);
 					count++;
 					printDate = false;
 				}
 				else if(digitalDate && count <= 2){
 					String printDateNum = temp.text();
-					System.out.println("Digital Date: " + printDateNum);
+					//System.out.println("Digital Date: " + printDateNum);
 					comic.setPrintPubDateNum(printDateNum);
 					count++;
 					digitalDate = false;
