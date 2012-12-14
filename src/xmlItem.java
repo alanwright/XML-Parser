@@ -11,10 +11,12 @@ public class xmlItem {
 	private String publisher;
 	private String pubDate;
 	private String thumbURL;
+	private String imgURL;
 	private String shortDescription;
 	private String longDescription;
 	private String printPubDateNum;
 	private String digitalPubDateNum;
+	private String imgExtension;
 	private boolean isDigital;
 	private int pageCount;
 	private int issueNum;
@@ -37,6 +39,8 @@ public class xmlItem {
 		longDescription = "";
 		printPubDateNum = "";
 		digitalPubDateNum = "";
+		imgExtension = "";
+		imgURL = "";
 		isDigital = false;
 		pageCount = -1;
 		issueNum = -1;
@@ -50,6 +54,10 @@ public class xmlItem {
 
 	public String getTitle() {
 		return title;
+	}
+	
+	public String getGenericTitle() {
+		return genericTitle;
 	}
 
 	public void setTitle(String title) {
@@ -101,6 +109,20 @@ public class xmlItem {
 	public void setLink(String link) {
 		this.link = link.replace("?utm_campaign=rss", "");
 	}
+	
+	public String getImgExtension(){
+		return this.imgExtension;
+	}
+	
+	public void setImgExtension(String ext){
+		this.imgExtension = ext;
+		this.imgURL = "http://alan-wright.com/comics/" + ext;
+	}
+	
+	public String getImgURL(){
+		return this.imgURL;
+	}
+	
 	
 	@Override
 	public String toString() {
