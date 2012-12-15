@@ -14,7 +14,7 @@ public class driver{
 	public static void main(String[] args){
 		
 		try{
-			//Parse
+			//Parse xml
 			xmlParser xmlReader = new xmlParser(XML_URL);
 			long initTime = System.currentTimeMillis();
 			xmlItems = xmlReader.getItems();
@@ -23,8 +23,19 @@ public class driver{
 			System.out.println("XML parsing of " + xmlItems.size() + " comics complete in " +
 					(finalTime - initTime) + " milliseconds.");
 			
+			//Check if comic is in database, if it is delete from list
+			
+			//Parse HTML
 			htmlParser htmlReader = new htmlParser();
 			htmlReader.parseItems(xmlItems);
+			
+			//Upload images
+			
+			
+			//Update Database
+			
+			
+			
 		}catch(Exception e){
 			e.printStackTrace();
 			System.out.println("Could not parse XML File");
