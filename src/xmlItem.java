@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class xmlItem {
@@ -12,6 +11,7 @@ public class xmlItem {
 	private String pubDate;
 	private String thumbURL;
 	private String imgURL;
+	private String imgDlURL;
 	private String shortDescription;
 	private String longDescription;
 	private String printPubDateNum;
@@ -41,6 +41,7 @@ public class xmlItem {
 		digitalPubDateNum = "";
 		imgExtension = "";
 		imgURL = "";
+		imgDlURL = "";
 		isDigital = false;
 		pageCount = -1;
 		issueNum = -1;
@@ -84,21 +85,47 @@ public class xmlItem {
 					this.issueStr = title.substring(issueIndex+1);
 					this.issueNum = Integer.parseInt(title.substring(issueIndex+ 1, periodIndex));
 				}
-				
+
 				//If there is a left paren ( after the #, parse accordingly
-				else if(parenIndex > issueIndex){
+				else if(parenIndex > issueIndex && issueIndex > 0){
 					this.issueNum = Integer.parseInt(title.substring(issueIndex+ 1, parenIndex-1));
 					this.issueStr = title.substring(issueIndex+ 1, parenIndex);
 				}
 				
 			}
 			//Parse the title
-			this.title = title; 
-			this.genericTitle = title.substring(0, issueIndex);
+			int leftParenIndex = title.lastIndexOf('(');
+			int rightParenIndex = title.lastIndexOf(')');
+
+			//If there is both a left and right paren, delete the middle
+			if(leftParenIndex < rightParenIndex && leftParenIndex > 0){
+				String toBeReplaced = title.substring(leftParenIndex, rightParenIndex + 1);
+				this.title = title.replace(toBeReplaced, "");
+				issueIndex = this.title.indexOf('#');
+				this.genericTitle = this.title.substring(0, issueIndex);
+			}
+			//Otherwise parse normally
+			else{
+				this.title = title; 
+				this.genericTitle = title.substring(0, issueIndex);
+			}
 		}
 		else{
-			this.title = title;
-			this.genericTitle = title;
+			//Parse the title
+			int leftParenIndex = title.lastIndexOf('(');
+			int rightParenIndex = title.lastIndexOf(')');
+
+			//If there is both a left and right paren, delete the middle
+			if(leftParenIndex < rightParenIndex && leftParenIndex > 0){
+				String toBeReplaced = title.substring(leftParenIndex, rightParenIndex + 1);
+				this.title = title.replace(toBeReplaced, "");
+				this.genericTitle = this.title;
+			}
+			//Otherwise parse normally
+			else{
+				this.title = title;
+				this.genericTitle = title;
+			}
 		}
 	}
 
@@ -123,6 +150,14 @@ public class xmlItem {
 		return this.imgURL;
 	}
 	
+	public String getImgDlURL(){
+		return this.imgDlURL;
+	}
+	
+	public void setImgDlURL(String url){
+		this.imgDlURL = url;
+	}
+	
 	
 	@Override
 	public String toString() {
@@ -130,7 +165,7 @@ public class xmlItem {
 		return String.format("Title: %s\nGeneric Title: %s\nIssue #: %d\nIssue Str: %s\nShort Description: %s\nPublisher: %s\n" +
 				"Publish Date: %s\nPrint Date: %s\nDigital Date: %s\nThumbnail url: %s\n" +
 				"Link: %s\nLong Description: %s\nCover Artists: %s\nAuthors: %s\nInkers: %s\nColors: %s\n" +
-				"Page Count: %d\nDigital: %B\n", title, genericTitle, issueNum, issueStr, shortDescription, publisher, pubDate, printPubDateNum, digitalPubDateNum, thumbURL, link, longDescription, coverArtists, authors, inkers, colors, pageCount, isDigital);
+				"Page Count: %d\nDigital: %B\nImage Extension: %s\nImage Link: %s\n", title, genericTitle, issueNum, issueStr, shortDescription, publisher, pubDate, printPubDateNum, digitalPubDateNum, thumbURL, link, longDescription, coverArtists, authors, inkers, colors, pageCount, isDigital, imgExtension, imgURL);
 	}
 
 	public void setPublisher(String publisher) {
@@ -222,6 +257,10 @@ public class xmlItem {
 	
 	public String getPrintPubDateNum() {
 		return printPubDateNum;
+	}
+	
+	public int getIssueNum() {
+		return issueNum;
 	}
 	
 	public void setDigitalPubDateNum(String digitalDate) {

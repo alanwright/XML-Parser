@@ -30,9 +30,10 @@ public class driver{
 			htmlReader.parseItems(xmlItems);
 			
 			//Upload images
-			
+			//FTP_FileUpload ftp = new FTP_FileUpload(xmlItems);
 			
 			//Update Database
+			MySqlUpdater sql = new MySqlUpdater(xmlItems);
 			
 			
 			

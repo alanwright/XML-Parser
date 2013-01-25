@@ -53,7 +53,7 @@ public class xmlParseHandler extends DefaultHandler {
 		}
 		else if("thumb".equalsIgnoreCase(qName) && parsingContentEncoded){
 			if(currentItem!=null){
-				currentItem.setthumbURL(attributes.getValue("src"));
+				currentItem.setthumbURL(attributes.getValue("src").replace("\"", ""));
 			}
 		}
 	}
@@ -118,7 +118,7 @@ public class xmlParseHandler extends DefaultHandler {
 				if(thumbUrlStart > 0){
 					
 					//Get the url, move on
-					currentItem.setthumbURL(new String(ch, thumbUrlStart, EXAMPLE_THUMB_URL.length()));
+					currentItem.setthumbURL(new String(ch, thumbUrlStart, EXAMPLE_THUMB_URL.length()-1));
 					parsingContentEncoded = false;
 				}
 			}

@@ -1,14 +1,8 @@
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.imageio.ImageIO;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,19 +16,24 @@ public class htmlParser {
 		long totalTime = 0;
 		for(xmlItem comic : xmlItems){
 			try{
+				System.out.println(comic.getLink());
 				Document doc = Jsoup.connect(xmlItems.get(count).getLink()).get();
 				
 				totalTime += parseLongDescription(comic, doc);
 				totalTime += parseCredits(comic, doc);
 				totalTime += parseImage(comic, doc);
 				
+				//LIMIT COMIC PARSES
+				if(count > 10)
+					break;
+				
 				//Backspace last print
-				if(count > 99)
-					System.out.print("\b\b\b");
-				else if(count > 9)
-					System.out.print("\b\b");
-				else if(count > 0)
-					System.out.print("\b");
+//				if(count > 99)
+//					System.out.print("\b\b\b");
+//				else if(count > 9)
+//					System.out.print("\b\b");
+//				else if(count > 0)
+//					System.out.print("\b");
 			} catch(SocketTimeoutException e){
 				System.out.println("timeout: " + count);
 			} catch (IOException e) {
@@ -42,8 +41,8 @@ public class htmlParser {
 				e.printStackTrace();
 			}
 			
-			if(count > 10)
-				break;
+//			if(count > 10)
+//				break;
 			count++;
 			System.out.print(count);
 		}
@@ -55,6 +54,8 @@ public class htmlParser {
 
 	public static long parseImage(xmlItem comic, Document doc){
 		
+		//System.out.println(comic.getGenericTitle());
+		
 		long initTime = System.currentTimeMillis();
 		
 		//paragraph with a class
@@ -65,24 +66,13 @@ public class htmlParser {
 			if(temp.size() != 0){
 				//System.out.println("! " +temp.attr("src"));
 				String url = temp.attr("src");
-				try{
-					BufferedImage image = ImageIO.read(new URL(url));
-					
-					
-					//Create img extension/url
-					String fileExt = comic.getPrintPubDateNum() + "/" + comic.getGenericTitle().replace(" ", "") + ".jpg";
-					comic.setImgExtension(fileExt);
-					
-					//Output the img to file for now
-					new File(comic.getPrintPubDateNum()).mkdir();
-					ImageIO.write(image, "jpg" , new File(fileExt));
-					
-					//Here is where you would upload to server
-					
-					
-				}catch(IOException e){
-					System.out.println("Could not save image @ url: " + url);
-				}
+				comic.setImgDlURL(url);
+				
+				//Create img extension/url
+				String fileExt = comic.getDigitalPubDateNum() +  "/" + 
+						comic.getGenericTitle().replace(" ", "").replace(".", "").replace(":", "") + ".jpg";
+				comic.setImgExtension(fileExt);
+				
 				break;
 			}
 		}
