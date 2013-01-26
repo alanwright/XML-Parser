@@ -72,9 +72,11 @@ public class FTP_FileUpload
 	                                    //Get directory 
 	                                    dir = client.listNames();
 	                                    found = false;
-	                                    String title = x.getGenericTitle().replace(" ", "") + ".jpg";
+	                                    String title = x.getGenericTitle().replace(" ", "").replace(".", "")+ ".jpg";
 	                                    System.out.println(title);
 	                                    for(String s : dir){
+	                                    	
+	                                    	//System.out.println(title + " vs " + s );
 	                                    	
 	                                    	//Check if the image exists
 	                                    	if(s.equals(title)){
