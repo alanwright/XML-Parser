@@ -30,9 +30,7 @@ public class MySqlUpdater{
 					break;
 				
 				//Get the imgurl for the comic, this should be unique.
-				System.out.println(comic.getImgURL());
 				String image_link = comic.getImgURL();
-				System.out.println(image_link);
 				
 				//Query for the comic
 				String query = "SELECT image_link FROM comics WHERE image_link = \"" + image_link + "\"";
@@ -45,29 +43,126 @@ public class MySqlUpdater{
 				}
 				
 				//Otherwise, get all data
+				String queryBegin = "INSERT into comics (";
+				String queryEnd = "VALUES (";
+				
+				//Title
 				String title = comic.getTitle();
+				if(!title.equals(null)){
+					queryBegin += "title";
+					queryEnd += "'" + title.replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Generic Title
 				String gen_title = comic.getGenericTitle();
+				if(!gen_title.equals(null)){
+					queryBegin += ", generic_title";
+					queryEnd += ", '" + gen_title.replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Issue Num
 				int issue = comic.getIssueNum();
-				//String short_descr = comic.getShortDescription();
-				//String publisher = comic.getPublisher();
-				//String print_date = comic.getPrintPubDateNum();
-				//String digital_date = comic.getDigitalPubDateNum();
-				//String thumb = comic.getthumbURL();
-				//String descr = comic.getLongDescription();
-				//String link = comic.getLink();
-				//ArrayList<String> coverArtists = comic.getCoverArtists();
-				//if(coverArtists.size() > 0)
-				//	String cover = coverArtists.get(0);
-				//String author = comic.getAuthors().get(0);
-				//String inker = comic.getInkers().get(0);
-				//String color = comic.getColors().get(0);
-				//int pages = comic.getPageCount();
-				//boolean isDigital = comic.isDigital();
+				if(issue > -1){
+					queryBegin += ", issue_num";
+					queryEnd += ", " + issue;
+				}
+				
+				//Short Description
+				String short_descr = comic.getShortDescription();
+				if(!short_descr.equals(null)){
+					queryBegin += ", short_description";
+					queryEnd += ", '" + short_descr.replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Publisher
+				String publisher = comic.getPublisher();
+				if(!publisher.equals(null)){
+					queryBegin += ", publisher";
+					queryEnd += ", '" + publisher.replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Print Date
+				String print_date = comic.getPrintPubDateNum();
+				if(!print_date.equals(null)){
+					queryBegin += ", print_date";
+					queryEnd += ", '" + print_date + "'";
+				}
+				
+				//Digital Date
+				String digital_date = comic.getDigitalPubDateNum();
+				if(!digital_date.equals(null)){
+					queryBegin += ", digital_date";
+					queryEnd += ", '" + digital_date + "'";
+				}
+				
+				//Thumbnail URL
+				String thumb = comic.getthumbURL();
+				if(!thumb.equals(null)){
+					queryBegin += ", thumbnail";
+					queryEnd += ", '" + thumb.replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Long Description
+				String descr = comic.getLongDescription();
+				if(!descr.equals(null)){
+					queryBegin += ", long_description";
+					queryEnd += ", '" + descr.replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Link URL
+				String link = comic.getLink();
+				if(!link.equals(null)){
+					queryBegin += ", link";
+					queryEnd += ", '" + link.replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Cover Artists
+				ArrayList<String> coverArtists = comic.getCoverArtists();
+				if(!coverArtists.isEmpty()){
+					queryBegin += ", cover_artist1";
+					queryEnd += ", '" + coverArtists.get(0).replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Authors
+				ArrayList<String> authors = comic.getAuthors();
+				if(!authors.isEmpty()){
+					queryBegin += ", author1";
+					queryEnd += ", '" + authors.get(0).replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Inker
+				ArrayList<String> inker = comic.getInkers();
+				if(!inker.isEmpty()){
+					queryBegin += ", inker1";
+					queryEnd += ", '" + inker.get(0).replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Colors
+				ArrayList<String> color = comic.getColors();
+				if(!color.isEmpty()){
+					queryBegin += ", color1";
+					queryEnd += ", '" + color.get(0).replaceAll("\'", "\\'") + "'";
+				}
+				
+				//Number of pages
+				int pages = comic.getPageCount();
+				if(pages > 0){
+					queryBegin += ", page_count";
+					queryEnd += ", " + pages;
+				}
+				
+				//Is the comic digital?
+				boolean isDigital = comic.isDigital();
+				queryBegin += ", isDigital) ";
+				queryEnd += ", " + isDigital + ")";
+				
+				query = queryBegin + queryEnd;
+				
 				
 				//query = "INSERT into comics (title, generic_title, issue_num, short_description, publisher, print_date, digital_date, thumbnail, long_description, link, image_link, page_count, isDigital)" +
 				//		"VALUES(" + title + ", " + gen_title + ", " + issue + ", " + short_descr + ", " + publisher + ", "+ print_date + ", "+ digital_date + ", "+ thumb + ", " + descr + ", " + link + ", " + image_link + ", " + pages + ", " + isDigital + ")";
 				
-				query = "INSERT into comics(title, generic_title, issue_num, image_link) VALUES('" + title +"', '" + gen_title +"', " + issue +", '" + comic.getImgURL() + "')";
+				//query = "INSERT into comics(title, generic_title, issue_num, image_link) VALUES('" + title +"', '" + gen_title +"', " + issue +", '" + comic.getImgURL() + "')";
 				
 				System.out.println(query);
 				stmt.executeUpdate(query);
