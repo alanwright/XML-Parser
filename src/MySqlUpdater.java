@@ -2,8 +2,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.*;
-
 public class MySqlUpdater{
 	String dbtime;
 	String dbUrl = "jdbc:mysql://alan-wright.com/alanwrig_comics";
@@ -22,8 +20,13 @@ public class MySqlUpdater{
 			
 			//Create statement
 			Statement stmt = con.createStatement();
+			PreparedStatement pstmt;
 			int count = -1;
 			for(xmlItem comic : xmlItems){
+				int paramCount = 0;
+				ArrayList<String> stringParams = new ArrayList<String>();
+				ArrayList<Integer> intParams = new ArrayList<Integer>();
+				ArrayList<Integer> intLocs = new ArrayList<Integer>();
 				
 				count++;
 				if(count > 10)
@@ -49,124 +52,180 @@ public class MySqlUpdater{
 				//Title
 				String title = comic.getTitle();
 				if(!title.equals(null)){
-					queryBegin += "title";
-					queryEnd += "'" + title.replaceAll("\'", "\\'") + "'";
+					queryBegin += "title"; //add the param name
+					queryEnd += "?"; //this is for addition later
+					stringParams.add(title); //save the value
+					paramCount++; //Up page count
 				}
 				
 				//Generic Title
 				String gen_title = comic.getGenericTitle();
 				if(!gen_title.equals(null)){
 					queryBegin += ", generic_title";
-					queryEnd += ", '" + gen_title.replaceAll("\'", "\\'") + "'";
+					queryEnd += ", ?";
+					stringParams.add(gen_title);
+					paramCount++;
 				}
 				
 				//Issue Num
 				int issue = comic.getIssueNum();
 				if(issue > -1){
 					queryBegin += ", issue_num";
-					queryEnd += ", " + issue;
+					queryEnd += ", ?"; 
+					intParams.add(issue);
+					paramCount++;
+					intLocs.add(paramCount);
 				}
 				
 				//Short Description
 				String short_descr = comic.getShortDescription();
 				if(!short_descr.equals(null)){
 					queryBegin += ", short_description";
-					queryEnd += ", '" + short_descr.replaceAll("\'", "\\'") + "'";
+					queryEnd += ", ?";
+					stringParams.add(short_descr);
+					paramCount++;
 				}
 				
 				//Publisher
 				String publisher = comic.getPublisher();
 				if(!publisher.equals(null)){
 					queryBegin += ", publisher";
-					queryEnd += ", '" + publisher.replaceAll("\'", "\\'") + "'";
+					queryEnd += ", ?"; 
+					stringParams.add(publisher);
+					paramCount++;
 				}
 				
 				//Print Date
 				String print_date = comic.getPrintPubDateNum();
 				if(!print_date.equals(null)){
 					queryBegin += ", print_date";
-					queryEnd += ", '" + print_date + "'";
+					queryEnd += ", ?"; 
+					stringParams.add(print_date);
+					paramCount++;
 				}
 				
 				//Digital Date
 				String digital_date = comic.getDigitalPubDateNum();
 				if(!digital_date.equals(null)){
 					queryBegin += ", digital_date";
-					queryEnd += ", '" + digital_date + "'";
+					queryEnd += ", ?"; 
+					stringParams.add(digital_date);
+					paramCount++;
 				}
 				
 				//Thumbnail URL
 				String thumb = comic.getthumbURL();
 				if(!thumb.equals(null)){
 					queryBegin += ", thumbnail";
-					queryEnd += ", '" + thumb.replaceAll("\'", "\\'") + "'";
+					queryEnd += ", ?"; 
+					stringParams.add(thumb);
+					paramCount++;
 				}
 				
 				//Long Description
 				String descr = comic.getLongDescription();
 				if(!descr.equals(null)){
 					queryBegin += ", long_description";
-					queryEnd += ", '" + descr.replaceAll("\'", "\\'") + "'";
+					queryEnd += ", ?"; 
+					stringParams.add(descr);
+					paramCount++;
 				}
 				
 				//Link URL
 				String link = comic.getLink();
 				if(!link.equals(null)){
 					queryBegin += ", link";
-					queryEnd += ", '" + link.replaceAll("\'", "\\'") + "'";
+					queryEnd += ", ?";
+					stringParams.add(link);
+					paramCount++;
 				}
 				
 				//Cover Artists
 				ArrayList<String> coverArtists = comic.getCoverArtists();
 				if(!coverArtists.isEmpty()){
 					queryBegin += ", cover_artist1";
-					queryEnd += ", '" + coverArtists.get(0).replaceAll("\'", "\\'") + "'";
+					queryEnd += ", ?"; 
+					stringParams.add(coverArtists.get(0));
+					paramCount++;
 				}
 				
 				//Authors
 				ArrayList<String> authors = comic.getAuthors();
 				if(!authors.isEmpty()){
 					queryBegin += ", author1";
-					queryEnd += ", '" + authors.get(0).replaceAll("\'", "\\'") + "'";
+					queryEnd += ", ?";
+					stringParams.add(authors.get(0));
+					paramCount++;
 				}
 				
 				//Inker
 				ArrayList<String> inker = comic.getInkers();
 				if(!inker.isEmpty()){
 					queryBegin += ", inker1";
-					queryEnd += ", '" + inker.get(0).replaceAll("\'", "\\'") + "'";
+					queryEnd += ", ?";
+					stringParams.add(inker.get(0));
+					paramCount++;
 				}
 				
 				//Colors
 				ArrayList<String> color = comic.getColors();
 				if(!color.isEmpty()){
 					queryBegin += ", color1";
-					queryEnd += ", '" + color.get(0).replaceAll("\'", "\\'") + "'";
+					queryEnd += ", ?";
+					stringParams.add(color.get(0));
+					paramCount++;
 				}
 				
 				//Number of pages
 				int pages = comic.getPageCount();
 				if(pages > 0){
 					queryBegin += ", page_count";
-					queryEnd += ", " + pages;
+					queryEnd += ", ?"; 
+					intParams.add(pages);
+					paramCount++;
+					intLocs.add(paramCount);
 				}
+				
+				//Add image link
+				queryBegin += ", image_link";
+				queryEnd += ", ?";
+				stringParams.add(image_link);
+				paramCount++;
 				
 				//Is the comic digital?
 				boolean isDigital = comic.isDigital();
 				queryBegin += ", isDigital) ";
-				queryEnd += ", " + isDigital + ")";
+				queryEnd += ", ?)"; 
+				paramCount++;
+				System.out.println(paramCount);
 				
+				//Combine
 				query = queryBegin + queryEnd;
+				pstmt = con.prepareStatement(query);
+				//System.out.println(query);
 				
+				//Add params
+				int stringCount = 0;
+				int intCount = 0;
+				for(int i = 1; i <= paramCount; i++){
+					//Int location
+					if(intLocs.indexOf(i) != -1){
+						pstmt.setInt(i, intParams.get(intCount));
+						intCount++;
+					}
+					//isDitial
+					else if(i == paramCount){
+						pstmt.setBoolean(i, isDigital);
+					}
+					//String
+					else{
+						pstmt.setString(i, stringParams.get(stringCount));
+						stringCount++;
+					}
+				}
 				
-				//query = "INSERT into comics (title, generic_title, issue_num, short_description, publisher, print_date, digital_date, thumbnail, long_description, link, image_link, page_count, isDigital)" +
-				//		"VALUES(" + title + ", " + gen_title + ", " + issue + ", " + short_descr + ", " + publisher + ", "+ print_date + ", "+ digital_date + ", "+ thumb + ", " + descr + ", " + link + ", " + image_link + ", " + pages + ", " + isDigital + ")";
-				
-				//query = "INSERT into comics(title, generic_title, issue_num, image_link) VALUES('" + title +"', '" + gen_title +"', " + issue +", '" + comic.getImgURL() + "')";
-				
-				System.out.println(query);
-				stmt.executeUpdate(query);
-				//rs = stmt.executeQuery(query);
+				//Update table
+				pstmt.executeUpdate();
 				
 			}
 			con.close();
@@ -179,50 +238,4 @@ public class MySqlUpdater{
 			e.printStackTrace();
 		}
 	}
-
-	public static void main(String args[]){
-//		String dbtime;
-//		String dbUrl = "jdbc:mysql://alan-wright.com/alanwrig_comics";
-//		String username = "alanwrig";
-//		String password = "@123Victory";
-//		String dbClass = "com.mysql.jdbc.Driver";
-//		String queryAll = "Select * FROM comics";
-//		String resetId = "SET insert_id = 2";
-//		
-//		try {
-//		
-//			Class.forName("com.mysql.jdbc.Driver");
-//			
-//			//Open connection
-//			Connection con = DriverManager.getConnection (dbUrl, username, password);
-//			
-//			//Create statement
-//			Statement stmt = con.createStatement();
-//			
-//			String query = "SELECT image_link FROM comics WHERE image_link = \"temp\"";
-//			ResultSet rs = stmt.executeQuery(query);
-//			
-//			if(rs.first())
-//				System.out.println("Found");
-//			
-//			//stmt.executeUpdate("INSERT into comics (title, link, date) VALUES('title', 'link', '2012-2-2') ");
-//			//rs = stmt.executeQuery(query);
-//			
-//			while (rs.next()) {
-//				dbtime = rs.getString(1);
-//				System.out.println(dbtime);
-//			} //end while
-//		
-//			con.close();
-//		} //end try
-//		
-//			catch(ClassNotFoundException e) {
-//			e.printStackTrace();
-//		}
-//		catch(SQLException e) {
-//			e.printStackTrace();
-//		}
-//	
-	}  //end main
-
 }  //end class
